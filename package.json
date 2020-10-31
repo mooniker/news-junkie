@@ -1,0 +1,27 @@
+{
+  "name": "news-junkie",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "modern test",
+    "format": "modern format",
+    "lint": "modern lint",
+    "precommit": "modern precommit"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "@types/jest": "^26.0.15",
+    "modern-node": "^2.9.0",
+    "prettier-standard": "^16.4.1"
+  },
+  "dependencies": {
+    "aws-sdk": "^2.783.0",
+    "highland": "^2.13.5",
+    "node-warc": "^3.3.1",
+    "sanitize-html": "^2.1.1",
+    "unfluff": "^3.2.0"
+  }
+}
