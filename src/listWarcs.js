@@ -1,4 +1,5 @@
 const AWS = require('aws-sdk')
+const { parseDateString } = require('./utils')
 
 const {
   COMMONCRAWL_BUCKET = 'commoncrawl',
@@ -65,20 +66,4 @@ function listWarcs (params = {}) {
     )
 }
 
-/**
- * Parses the year, month, and date from ISP date string
- * @param {string} str
- * @returns {Object}
- */
-function parseDateString (str) {
-  try {
-    const { groups } = str.match(/^\s*(?<year>\d{4})(?<month>\d{2})?(?<day>\d{2})?\s*$/)
-    const { year, month, day } = groups
-    return { year, month, day }
-  } catch (e) {
-    console.error('Could not parse ' + str)
-    throw e
-  }
-}
-
-module.exports = { listWarcs, parseDateString }
+module.exports = listWarcs
