@@ -1,17 +1,31 @@
 {
   "name": "news-junkie",
   "version": "0.0.1",
-  "description": "",
-  "main": "index.js",
+  "description": "Parse the news",
+  "main": "./src/index.js",
   "scripts": {
     "test": "modern test",
     "format": "modern format",
     "lint": "modern lint",
     "precommit": "modern precommit"
   },
-  "keywords": [],
-  "author": "",
-  "license": "UNLICENSED",
+  "keywords": [
+    "commoncrawl",
+    "news",
+    "warc"
+  ],
+  "author": {
+    "name": "James Moon",
+    "email": "mooniker@gmail.com"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mooniker/news-junkie.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mooniker/news-junkie/issues"
+  },
   "devDependencies": {
     "@types/jest": "^26.0.15",
     "modern-node": "^2.9.0",
