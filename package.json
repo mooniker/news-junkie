@@ -18,7 +18,9 @@
     "prettier-standard": "^16.4.1"
   },
   "dependencies": {
-    "aws-sdk": "^2.783.0",
+    "aws-sdk": "^2.784.0",
+    "bottleneck": "^2.19.5",
+    "chalk": "^4.1.0",
     "highland": "^2.13.5",
     "node-warc": "^3.3.1",
     "sanitize-html": "^2.1.1",
