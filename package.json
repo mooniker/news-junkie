@@ -26,18 +26,28 @@
   "bugs": {
     "url": "https://github.com/mooniker/news-junkie/issues"
   },
+  "homepage": "https://github.com/mooniker/news-junkie#readme",
   "devDependencies": {
-    "@types/jest": "^26.0.15",
+    "metascraper": "^5.16.13",
+    "metascraper-description": "^5.16.13",
+    "metascraper-lang": "^5.16.13",
+    "metascraper-publisher": "^5.16.13",
+    "metascraper-url": "^5.16.13",
     "modern-node": "^2.9.0",
     "prettier-standard": "^16.4.1"
   },
   "dependencies": {
-    "aws-sdk": "^2.784.0",
+    "aws-sdk": "^2.827.0",
     "bottleneck": "^2.19.5",
     "chalk": "^4.1.0",
     "highland": "^2.13.5",
     "node-warc": "^3.3.1",
-    "sanitize-html": "^2.1.1",
+    "sanitize-html": "^2.3.0",
     "unfluff": "^3.2.0"
+  },
+  "standard": {
+    "env": [
+      "jest"
+    ]
   }
 }
