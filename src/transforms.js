@@ -1,11 +1,16 @@
 /**
- * @param {Object|string} record - WARCRecord or URL
+ * Loose wrapper around Node URL
+ * @param {WARCRecord|URL|string} record - WARC record or URL
  * @param {Object} record.warcHeader
  * @returns {URL}
  */
 function toURL (record) {
   const url =
-    typeof record === 'string' ? record : record.warcHeader['WARC-Target-URI']
+    typeof record === 'string'
+      ? record
+      : record instanceof URL
+      ? record.href
+      : record.warcHeader['WARC-Target-URI']
 
   try {
     return new URL(url)
@@ -25,20 +30,24 @@ function toUrl (record) {
   return { href, hostname, pathname, search, hash, url, error }
 }
 
-const unfluff = require('unfluff')
+const metascraper = require('metascraper')([
+  require('metascraper-author')(),
+  require('metascraper-date')(),
+  require('metascraper-description')(),
+  require('metascraper-publisher')(),
+  require('metascraper-title')()
+])
 
-const LEAD_PARAGRAPHS = 5
+async function extractHeadline ({ warcHeader, content }) {
+  const url = warcHeader['WARC-Target-URI']
 
-function extractHeadline ({ warcHeader, content }) {
-  const { title, date, text, canonicalLink } = unfluff(content.toString())
+  const metadata = await metascraper({ html: content.toString(), url })
 
-  const grafs = text.split(/\n\n/)
-  const url = canonicalLink || warcHeader['WARC-Target-URI']
+  console.log(metadata)
 
   return {
-    headline: title,
-    lead: grafs.slice(0, LEAD_PARAGRAPHS),
-    pubDate: date,
+    headline: metadata.title,
+    pubDate: metadata.date,
     url
   }
 }
