@@ -1,5 +1,5 @@
 const { isUrlAmongTargets } = require('./utils')
-const { yellow, blue, magenta, cyan, bgCyan } = require('chalk')
+// const { yellow, blue, magenta, cyan, bgCyan } = require('chalk')
 
 const { HOSTNAME_CACHE_CAP = 300 } = process.env
 
@@ -27,27 +27,32 @@ function createResponseHeaderFilter (options) {
 
 /**
  * @param {Object} params
- * @param {string[]} params.targetHostnames
+ * @param {string[]} targetHostnames
  * @returns {Function}
  */
-function createUrlFilter (params) {
-  if (
-    !Array.isArray(params.targetHostnames) ||
-    params.targetHostnames.length === 0
-  ) {
-    throw new Error('URL filter requires targetHostnames param')
+function filterByHostnames (targetHostnames) {
+  if (targetHostnames) {
+    return filterByUrl
   }
 
-  return filterByUrl
+  return function () {
+    return true
+  }
 
   /**
-   * @param {Object} WARCRecord
-   * @param {Object} [WARCRecord.warcHeader]
+   * @param {WARCRecord|URL|string} record - WARC record or URL
+   * @param {Object} [record.warcHeader]
+   * @param {string[]} targetHostnames
    */
-  function filterByUrl ({ warcHeader }) {
-    const { 'WARC-Target-URI': url } = warcHeader
+  function filterByUrl (record) {
+    const url =
+      typeof record === 'string'
+        ? record
+        : record instanceof URL
+        ? record.href
+        : record.warcHeader['WARC-Target-URI']
 
-    return isUrlAmongTargets(url, params.targetHostnames)
+    return isUrlAmongTargets(url, targetHostnames)
   }
 }
 
@@ -74,11 +79,11 @@ function createUrlPathnameDeduper (mem = {}, options = {}) {
 
     // match by
     if (mem[hostname].includes(pathname)) {
-      console.info(
-        '--',
-        yellow('Ignoring dupe:'),
-        blue(hostname) + magenta(pathname) + cyan(search) + bgCyan(hash)
-      )
+      // console.info(
+      //   '--',
+      //   yellow('Ignoring dupe:'),
+      //   blue(hostname) + magenta(pathname) + cyan(search) + bgCyan(hash)
+      // )
       return false
     }
 
@@ -93,7 +98,7 @@ function createUrlPathnameDeduper (mem = {}, options = {}) {
 
 module.exports = {
   createResponseHeaderFilter,
-  createUrlFilter,
+  filterByHostnames,
   basicFilter: createResponseHeaderFilter(),
   createUrlPathnameDeduper
 }

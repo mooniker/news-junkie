@@ -1,10 +1,16 @@
 const __ = require('highland')
 const listWarcs = require('./listWarcs')
-const { basicFilter, createUrlPathnameDeduper } = require('./filters')
-const { toUrl } = require('./transforms')
+const {
+  basicFilter,
+  createUrlPathnameDeduper,
+  filterByHostnames
+} = require('./filters')
+const { toUrl, extractHeadline } = require('./transforms')
 const { createWarcStream } = require('./io')
 const Bottleneck = require('bottleneck')
+const fs = require('fs')
 
+// eslint-disable-next-line no-unused-vars
 async function main (params) {
   const { warcFiles } = await listWarcs(params)
 
@@ -17,11 +23,13 @@ async function main (params) {
   const urls = new Set()
 
   for (const warc of warcFiles) {
-    console.log({ warc })
     const moreUrls = await limiter.schedule(() =>
       collectUrls(warc, dedupeByPathname)
     )
-    moreUrls.forEach(({ href }) => urls.add(href))
+    moreUrls.forEach(({ href }) => {
+      console.log({ warc, href })
+      urls.add(href)
+    })
   }
 
   const urlCountByHostname = await __([...urls])
@@ -30,6 +38,7 @@ async function main (params) {
     .toPromise(Promise)
 
   return {
+    warcFiles,
     urls: [...urls],
     urlCountByHostname: Object.fromEntries(
       Object.entries(urlCountByHostname).sort(entriesCountHighToLow)
@@ -68,4 +77,47 @@ function collectUrls (warc, dedupeFilter = () => true) {
     .toPromise(Promise)
 }
 
-module.exports = main
+function collectHeadlines (warc, opts = {}) {
+  const { targetHostnames } = opts
+
+  if (targetHostnames) {
+    console.log({ targetHostnames })
+  }
+
+  return __(
+    typeof warc === 'object' && (warc.on || warc.pipe)
+      ? warc
+      : createWarcStream(warc)
+  )
+    .filter(basicFilter)
+    .filter(filterByHostnames(targetHostnames))
+    .map(extractHeadline)
+    .collect()
+    .toPromise(Promise)
+}
+
+async function skim (params = {}) {
+  console.log({ params })
+  const { outputPath, targetHostnames } = params
+  const { warcFiles } = await listWarcs(params)
+  console.log({ warcFiles, len: warcFiles.length })
+
+  const limiter = new Bottleneck({
+    maxConcurrent: 1,
+    minTime: 1000 * 10 // 10 seconds
+  })
+
+  const outputStream = outputPath ? fs.createWriteStream(outputPath) : null
+
+  for (const warc of [warcFiles[0]]) {
+    const docs = await limiter.schedule(() =>
+      collectHeadlines(warc, { outputStream, targetHostnames })
+    )
+    if (outputStream) {
+      docs.forEach(doc => outputStream.write(doc))
+    }
+    console.log({ warc, docs })
+  }
+}
+
+module.exports = skim
