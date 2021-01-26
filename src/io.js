@@ -1,4 +1,4 @@
-const { createReadStream } = require('fs')
+const { createReadStream, createWriteStream } = require('fs')
 const { WARCStreamTransform } = require('node-warc')
 const { createGunzip } = require('zlib')
 const { PassThrough } = require('stream')
@@ -72,5 +72,6 @@ function createReadStreamS3 (warcPath) {
 
 module.exports = {
   createWarcStream,
-  createReadStreamS3
+  createReadStreamS3,
+  createWriteStream
 }

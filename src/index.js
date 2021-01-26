@@ -6,9 +6,8 @@ const {
   filterByHostnames
 } = require('./filters')
 const { toUrl, extractHeadline } = require('./transforms')
-const { createWarcStream } = require('./io')
+const { createWarcStream, createWriteStream } = require('./io')
 const Bottleneck = require('bottleneck')
-const fs = require('fs')
 
 // eslint-disable-next-line no-unused-vars
 async function main (params) {
@@ -98,7 +97,7 @@ function collectHeadlines (warc, opts = {}) {
 
 async function skim (params = {}) {
   console.log({ params })
-  const { outputPath, targetHostnames } = params
+  const { outputFile, outputPath = outputFile, targetHostnames } = params
   const { warcFiles } = await listWarcs(params)
   console.log(
     '📚 🔍',
@@ -112,7 +111,10 @@ async function skim (params = {}) {
     minTime: 1000 * 10 // 10 seconds
   })
 
-  const outputStream = outputPath ? fs.createWriteStream(outputPath) : null
+  const outputStream = outputPath && createWriteStream(outputPath)
+  if (outputStream) {
+    console.log('💾 🗄️ ', outputPath)
+  }
 
   for (const warc of [warcFiles[0]]) {
     const docs = await limiter.schedule(() =>
