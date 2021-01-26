@@ -100,7 +100,12 @@ async function skim (params = {}) {
   console.log({ params })
   const { outputPath, targetHostnames } = params
   const { warcFiles } = await listWarcs(params)
-  console.log({ warcFiles, len: warcFiles.length })
+  console.log(
+    '📚 🔍',
+    warcFiles.length,
+    'WARCs:',
+    warcFiles.map(({ Bucket, Key }) => `\n - 📘 🏄 ${Bucket}/${Key}`).join('')
+  )
 
   const limiter = new Bottleneck({
     maxConcurrent: 1,

@@ -44,7 +44,10 @@ function createReadStreamS3 (warcPath) {
 
   passThroughStream.on('newListener', event => {
     if (!streamCreated && event === 'data') {
-      console.log('📥 Streaming archive for reading:', warcPath)
+      console.log(
+        '📥 ⌛ Streaming archive for reading:',
+        `${params.Key}/${params.Bucket} ...`
+      )
 
       s3.makeUnauthenticatedRequest('getObject', params)
         .createReadStream()

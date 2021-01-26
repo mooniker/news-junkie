@@ -35,19 +35,41 @@ const metascraper = require('metascraper')([
   require('metascraper-date')(),
   require('metascraper-description')(),
   require('metascraper-publisher')(),
-  require('metascraper-title')()
+  require('metascraper-title')(),
+  require('metascraper-lang')()
 ])
+
+const log = require('./logger')
 
 async function extractHeadline ({ warcHeader, content }) {
   const url = warcHeader['WARC-Target-URI']
 
-  const metadata = await metascraper({ html: content.toString(), url })
+  const {
+    title,
+    date: pubDate,
+    description,
+    publisher,
+    author,
+    lang
+  } = await metascraper({ html: content.toString(), url })
 
-  console.log(metadata)
+  log({
+    title,
+    pubDate,
+    author,
+    publisher,
+    description,
+    lang,
+    url
+  })
 
   return {
-    headline: metadata.title,
-    pubDate: metadata.date,
+    title,
+    pubDate,
+    author,
+    publisher,
+    description,
+    lang,
     url
   }
 }
